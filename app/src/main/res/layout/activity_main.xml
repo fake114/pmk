@@ -7,10 +7,63 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.black.pmk.MainActivity">
+    tools:context="com.example.black.pmk.MainActivity"
+    android:background="@color/accent_material_light">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Guten Tag!"
+            android:id="@+id/gutenTag"
+            android:textSize="25sp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Herr Esel"
+            android:id="@+id/namensButton"
+            android:textSize="15sp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:background="@color/highlighted_text_material_dark" />
+    </LinearLayout>
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="150dp"
+        android:id="@+id/temperatureButton"
+        android:layout_marginBottom="49dp"
+        android:background="@color/highlighted_text_material_dark"
+        android:clickable="true"
+        android:contextClickable="false"
+        android:enabled="true"
+        android:longClickable="false"
+        android:textColor="#ffffff"
+        android:textSize="80sp"
+        android:onClick="updateTemperatureButton"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true" /><![CDATA[
+
+
+
+
+
+    ;
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
+
+
+
+]]>
 </RelativeLayout>
