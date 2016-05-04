@@ -1,11 +1,11 @@
 package com.example.black.pmk;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.black.pmk.threading.HL7Worker;
 
@@ -51,6 +51,11 @@ public class MainActivity extends AppCompatActivity {
 
         temperatureList.add(i);
         temperatureCommitList.add(i);
+    }
+
+    public void startPatientProfileActivity(View v) {
+        Toast.makeText(MainActivity.this, "Öffne Patienten-Editor", Toast.LENGTH_LONG).show();
+        startActivity(new Intent(MainActivity.this , PatientActivity.class));
     }
 
     protected List<Double> getTemperatureCommitList() {

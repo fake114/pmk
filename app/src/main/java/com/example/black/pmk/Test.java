@@ -56,7 +56,7 @@ public Test(MainActivity main){
      * System.out.println("Found " + results.getEntry().size() + " patients named 'duck'");
      */
 
-
+//TODO Change IDs to random
     private Patient createPatient() {
         // Create a patient object
         Patient patient = new Patient();
