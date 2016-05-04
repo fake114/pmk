@@ -12,6 +12,7 @@ public class HL7Worker extends AsyncTask<Void, Void, Test> {
     Test t;
     MainActivity main;
 public HL7Worker(MainActivity main){
+
     this.main = main;
     t = new Test(main);
 }
