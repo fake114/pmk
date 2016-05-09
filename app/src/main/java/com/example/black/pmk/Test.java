@@ -22,10 +22,12 @@ import ca.uhn.fhir.rest.client.IGenericClient;
  * Created by Black on 4/15/2016.
  */
 public class Test {
-    MainActivity main;
-public Test(MainActivity main){
-    this.main = main;
-}
+
+    private final Iterable<Double> temperatures;
+
+    public Test(Iterable<Double> temperatures){
+        this.temperatures = temperatures;
+    }
 
     public void doWork(){
 
@@ -129,7 +131,7 @@ public Test(MainActivity main){
     private void log(Bundle bundle) {
         // Log the request
         FhirContext ctx = FhirContext.forDstu2();
-        Log.e("TAG", ctx.newXmlParser().setPrettyPrint(true).encodeResourceToString(bundle));
+        Log.i("TAG", ctx.newXmlParser().setPrettyPrint(true).encodeResourceToString(bundle));
         //System.out.println(ctx.newXmlParser().setPrettyPrint(true).encodeResourceToString(bundle));
 
         // Create a client and post the transaction to the server
@@ -138,15 +140,14 @@ public Test(MainActivity main){
 
 // Log the response
 
-        Log.e("TAG", ctx.newXmlParser().setPrettyPrint(true).encodeResourceToString(resp));
+        Log.i("TAG", ctx.newXmlParser().setPrettyPrint(true).encodeResourceToString(resp));
         //System.out.println(ctx.newXmlParser().setPrettyPrint(true).encodeResourceToString(resp));
     }
     private List<Observation> createObservationsFromList(Patient patient){
         List<Observation> observations = new ArrayList<>();
-        for (Double d: main.getTemperatureCommitList()) {
+        for (Double d: temperatures) {
             observations.add(createObservation(patient, d));
         }
-        main.clearTemperatureCommitList();
         return observations;
     }
 }
