@@ -1,5 +1,6 @@
 package com.example.black.pmk;
 
+
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -21,17 +22,20 @@ import ca.uhn.fhir.rest.client.IGenericClient;
 /**
  * Created by Black on 4/15/2016.
  */
-public class Test {
+public class FHIRModule {
 
     private final Iterable<Double> temperatures;
+    Patient patient;
 
-    public Test(Iterable<Double> temperatures){
+
+    public FHIRModule(Iterable<Double> temperatures, com.example.black.pmk.data.Patient rawPatient) {
         this.temperatures = temperatures;
+        patient = createPatient(rawPatient);
     }
 
-    public void doWork(){
+    public void doWork() {
 
-        Patient patient = createPatient();
+
         Bundle bundle = createBundle();
         connect();
         buildBundle(bundle, patient, createObservationsFromList(patient));
@@ -59,16 +63,17 @@ public class Test {
      */
 
 //TODO Change IDs to random
-    private Patient createPatient() {
+    private Patient createPatient(com.example.black.pmk.data.Patient rawPatient) {
         // Create a patient object
         Patient patient = new Patient();
         patient.addIdentifier()
                 .setSystem("http://acme.org/mrns")
                 .setValue("987654321");
         patient.addName()
-                .addFamily("Ley")
-                .addGiven("Carl");
-        patient.setGender(AdministrativeGenderEnum.MALE);
+                .addFamily(rawPatient.getName())
+                .addGiven(rawPatient.getGivenName());
+        patient.setGender(rawPatient.getGenderEnum());
+        patient.setBirthDateWithDayPrecision(rawPatient.getBirthday());
         patient.setId(IdDt.newRandomUuid());
         return patient;
     }
@@ -95,7 +100,6 @@ public class Test {
     }
 
 
-
     private Bundle createBundle() {
         // Create a bundle that will be used as a transaction
         Bundle bundle = new Bundle();
@@ -118,7 +122,7 @@ public class Test {
         // Add the observation. This entry is a POST with no header
 // (normal create) meaning that it will be created even if
 // a similar resource already exists.
-        for (Observation observation: observations) {
+        for (Observation observation : observations) {
             bundle.addEntry()
                     .setResource(observation)
                     .getRequest()
@@ -143,11 +147,13 @@ public class Test {
         Log.i("TAG", ctx.newXmlParser().setPrettyPrint(true).encodeResourceToString(resp));
         //System.out.println(ctx.newXmlParser().setPrettyPrint(true).encodeResourceToString(resp));
     }
-    private List<Observation> createObservationsFromList(Patient patient){
+
+    private List<Observation> createObservationsFromList(Patient patient) {
         List<Observation> observations = new ArrayList<>();
-        for (Double d: temperatures) {
+        for (Double d : temperatures) {
             observations.add(createObservation(patient, d));
         }
         return observations;
     }
+
 }

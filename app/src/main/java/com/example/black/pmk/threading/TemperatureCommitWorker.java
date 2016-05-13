@@ -2,11 +2,8 @@ package com.example.black.pmk.threading;
 
 import android.os.AsyncTask;
 
-import com.example.black.pmk.Test;
-import com.example.black.pmk.data.TemperatureStore;
-
-import java.util.List;
-import java.util.concurrent.Callable;
+import com.example.black.pmk.FHIRModule;
+import com.example.black.pmk.data.Patient;
 
 /**
  * Created by Black on 5/9/2016.
@@ -14,16 +11,18 @@ import java.util.concurrent.Callable;
 public class TemperatureCommitWorker extends AsyncTask<Iterable<Double>, Void, Iterable<Double>> {
 
     private final TemperatureCommitListener listener;
+    private Patient patient;
 
-    public TemperatureCommitWorker(TemperatureCommitListener listener){
+    public TemperatureCommitWorker(TemperatureCommitListener listener, Patient patient){
         this.listener = listener;
+        this.patient = patient;
     }
 
 
     @Override
     protected Iterable<Double> doInBackground(Iterable<Double>... params) {
         if(params.length != 1 ) throw new  IllegalArgumentException("Invalid amount of parameters.");
-        Test t = new Test(params[0]);
+        FHIRModule t = new FHIRModule(params[0], patient);
         t.doWork();
         return  params[0];
     }

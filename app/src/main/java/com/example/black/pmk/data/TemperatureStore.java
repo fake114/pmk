@@ -16,6 +16,7 @@ public class TemperatureStore {
     private final List<Double> store = new ArrayList<>();
     private final Object lockObject = new Object();
     private boolean isCommitting = false;
+    private  Patient patient;
 
     private final int blockSize;
 
@@ -48,7 +49,7 @@ public class TemperatureStore {
             public void onSuccess(Iterable<Double> values) {
                 removeCommitedValues(values);
             }
-        });
+        }, patient);
         tcw.execute(copyList);
     }
 
@@ -65,4 +66,7 @@ public class TemperatureStore {
             startCommit();
     }
 
+    public void setPatient(Patient patient) {
+        this.patient = patient;
+    }
 }

@@ -7,27 +7,30 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.black.pmk.data.Patient;
 import com.example.black.pmk.data.TemperatureStore;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
+
+import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button temperatureButton;
-    int limiter = 1000;
+    private Button temperatureButton, namensButton;
     private final TemperatureStore store = new TemperatureStore(3);
-    boolean commit = false;
+    private boolean commit = false;
+    private Patient patient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         temperatureButton = (Button) findViewById(R.id.temperatureButton);
-    }
 
+        // TODO persistenten/gespeicherten Patienten aus bestehender File zum Programmstart auslesen
+        patient = new Patient();
+    }
 
     public void updateTemperatureButton(View v) {
         Random random = new Random();
@@ -35,16 +38,37 @@ public class MainActivity extends AppCompatActivity {
         Double i = ((double) random.nextInt(6)) + random.nextDouble();
         i += 35;
         temperatureButton.setText(df.format(i).toString() + " C°");
+        store.setPatient(patient);
         store.queue(i);
     }
 
     public void startPatientProfileActivity(View v) {
         Toast.makeText(MainActivity.this, "Öffne Patienten-Editor", Toast.LENGTH_LONG).show();
-        startActivity(new Intent(MainActivity.this , PatientActivity.class));
+        Intent intent = new Intent(MainActivity.this , PatientActivity.class);
+        intent.putExtra("patient", patient);
+        startActivityForResult(intent, 1);
     }
-
 
     public boolean getCommit() {
         return commit;
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            if(resultCode == RESULT_OK){
+                patient = (Patient) data.getSerializableExtra("patient");
+                String gender;
+                if (patient.getGenderEnum() == AdministrativeGenderEnum.MALE){
+                    gender = "Herr";
+                } else if (patient.getGenderEnum() == AdministrativeGenderEnum.FEMALE){
+                    gender = "Frau";
+                } else {
+                    gender = "";
+                }
+                namensButton = (Button) findViewById(R.id.namensButton);
+                namensButton.setText(gender + " " + patient.getName());
+            }
+        }
     }
 }
