@@ -1,4 +1,4 @@
-package com.example.black.pmk;
+package com.example.black.pmk.gui;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +12,7 @@ import com.example.black.pmk.data.TemperatureStore;
 
 import java.text.DecimalFormat;
 import java.util.Random;
+import  com.example.black.pmk.R;
 
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 

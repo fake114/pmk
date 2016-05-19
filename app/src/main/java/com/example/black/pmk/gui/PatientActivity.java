@@ -1,4 +1,4 @@
-package com.example.black.pmk;
+package com.example.black.pmk.gui;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import com.example.black.pmk.R;
 
 import java.util.Date;
 
