@@ -14,7 +14,11 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import com.example.black.pmk.R;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 
@@ -24,6 +28,7 @@ public class PatientActivity extends FragmentActivity implements
 
     private String name, vorname;
     private int year, month, day;
+    private SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
     private boolean isMan;
     private com.example.black.pmk.data.Patient patient = new com.example.black.pmk.data.Patient();
 
@@ -46,12 +51,11 @@ public class PatientActivity extends FragmentActivity implements
         if(patient.getGenderEnum() == AdministrativeGenderEnum.FEMALE) {
             (findViewById(R.id.geschlechtWeiblichButton)).setActivated(true);
         }
-        //TODO Irgendwo wird der Geburtstag ganz verquirlt... Stelle Konstruktor von PatientActivity
         if(patient.getBirthday() != null) {
-            this.year = patient.getBirthday().getYear();
-            this.month = patient.getBirthday().getMonth();
-            this.day = patient.getBirthday().getDay();
-            ((Button) findViewById(R.id.geburtstagButton)).setText(day + "."+ month + "." + year);
+            Calendar calendar = new GregorianCalendar();
+            calendar.setTime(patient.getBirthday());
+            Log.w("PatientActivityOnCreate","Date from Calendar parsed = " + sdf.format(calendar.getTime()));
+            ((Button) findViewById(R.id.geburtstagButton)).setText(sdf.format(calendar.getTime()));
         }
 
     }
@@ -65,7 +69,7 @@ public class PatientActivity extends FragmentActivity implements
     public void onDateSet(DatePicker view, int year, int month, int day) {
         //do some stuff for example write on log and update TextField on activity
         //Log.w("DatePicker","Date = " + year);
-        ((Button) findViewById(R.id.geburtstagButton)).setText(day + "."+ month + "." + year);
+        ((Button) findViewById(R.id.geburtstagButton)).setText( (day) + "."+ (month +1) + "." + year);
         this.day = day;
         this.month = month;
         this.year = year;
@@ -88,14 +92,19 @@ public class PatientActivity extends FragmentActivity implements
             patient.setGenderEnum(AdministrativeGenderEnum.FEMALE);
         }
 
-        //TODO Irgendwo wird der Geburtstag ganz verquirlt... Stelle savePatientCredentials
-        patient.setBirthday(new Date(year,month,day));
+        Calendar cal = new GregorianCalendar();
+        cal.set(year , month , day, 0, 0, 0);
+        patient.setBirthday(cal.getTime());
+
 
         //TODO Delete Logging Events from savePatientCredentials
         Log.w("PatientActivity","name = " + name);
         Log.w("PatientActivity","surname = " + vorname);
         Log.w("PatientActivity","isMan = " + isMan);
         Log.w("PatientActivity","birthday = " + day + "." + month + "." + year);
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(patient.getBirthday());
+        Log.w("PatientActivity","Date from Calendar parsed = " + sdf.format(calendar.getTime()));
 
 
         Intent intent = new Intent();
