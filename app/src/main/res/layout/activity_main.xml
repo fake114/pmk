@@ -9,7 +9,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".gui.MainActivity"
-    android:background="@color/accent_material_light">
+    android:background="@color/button_material_light">
 
     <LinearLayout
         android:orientation="horizontal"

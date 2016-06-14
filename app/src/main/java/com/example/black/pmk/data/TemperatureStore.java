@@ -7,13 +7,16 @@ import com.example.black.pmk.threading.TemperatureCommitWorker;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 
 /**
  * Created by Black on 5/9/2016.
  */
-public class TemperatureStore {
+public class TemperatureStore extends Observable {
 
     private final List<Double> store = new ArrayList<>();
+    private List<Double> progressStore = new ArrayList<>();
+    private final int PROGRESS_STORE_LIMIT = 1000;
     private final Object lockObject = new Object();
     private boolean isCommitting = false;
     private  Patient patient;
@@ -26,7 +29,7 @@ public class TemperatureStore {
 
     public void queue(double value){
         synchronized (lockObject) {
-            store.add(value);
+            storeProgress(value);
             checkState();
         }
     }
@@ -69,4 +72,31 @@ public class TemperatureStore {
     public void setPatient(Patient patient) {
         this.patient = patient;
     }
+
+    private void storeProgress(double value) {
+        store.add(value);
+        Log.w("TemperatureStore store","Stored Values = " + store.toString());
+        Log.w("progressStore.size()","Size = " + progressStore.size());
+        if (progressStore.size() <= PROGRESS_STORE_LIMIT) {
+            progressStore.add(value);
+        } else {
+            progressStore.remove(0);
+            progressStore.add(value);
+        }
+        Log.w("TemperatureStore ","Stored Values = " + progressStore.toString());
+        Log.w("progressStore.size()","Size = " + progressStore.size());
+        this.notifyObservers();
+    }
+
+    public List getProgressStore(){
+        Log.w("TemperatureStore ","Returning progressStore... ");
+        return progressStore;
+    }
+
+    @Override
+    public void notifyObservers() {
+        setChanged();
+        super.notifyObservers();
+    }
+
 }
