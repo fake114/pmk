@@ -1,6 +1,7 @@
 package com.example.black.pmk.gui;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
@@ -31,6 +32,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Random;
 import  com.example.black.pmk.R;
+import com.example.black.pmk.threading.BluetoothModule;
 import com.example.black.pmk.threading.TemperatureAlarmWorker;
 
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private MyPlotUpdater plotUpdater;
     private List plotData = new ArrayList();
     private XYSeries temperatureSeries;
+    private BluetoothModule bluetoothModule;
 
     private double debugCounter = 0;
 
@@ -66,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
         // TODO Entferne den Setoff für den debugCounter!
         debugCounter = 7;
+        bluetoothModule = new BluetoothModule(store);
 
 
 
@@ -117,12 +121,14 @@ public class MainActivity extends AppCompatActivity {
         Random random = new Random();
         DecimalFormat df = new DecimalFormat("#.##");
         //TODO Activate Random Generator and delete example counter
-        //Double i = ((double) random.nextInt(6)) + random.nextDouble();
-        Double i = debugCounter + 35;
+        Double i = ((double) random.nextInt(6)) + random.nextDouble();
+        i += 35;
+        //Double i = debugCounter + 35;
         //debugCounter++;
-        debugCounter--;
+        //debugCounter--;
         temperatureButton.setText(df.format(i).toString() + " C°");
         store.setPatient(patient);
+        //bluetoothModule.run();
         store.queue(i);
     }
 
@@ -194,4 +200,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        plotUpdater.update(null,null);
+    }
 }

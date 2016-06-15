@@ -73,6 +73,10 @@ public class TemperatureStore extends Observable {
         this.patient = patient;
     }
 
+    public Patient getPatient() {
+        return patient;
+    }
+
     private void storeProgress(double value) {
         store.add(value);
         Log.w("TemperatureStore store","Stored Values = " + store.toString());
