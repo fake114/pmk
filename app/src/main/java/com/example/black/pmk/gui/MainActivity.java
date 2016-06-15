@@ -12,6 +12,8 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.androidplot.Plot;
+import com.androidplot.ui.Size;
+import com.androidplot.ui.SizeLayoutType;
 import com.androidplot.util.PixelUtils;
 import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.LineAndPointFormatter;
@@ -29,6 +31,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Random;
 import  com.example.black.pmk.R;
+import com.example.black.pmk.threading.TemperatureAlarmWorker;
 
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 
@@ -38,11 +41,14 @@ public class MainActivity extends AppCompatActivity {
     private final TemperatureStore store = new TemperatureStore(3);
     private boolean commit = false;
     private Patient patient;
+    private TemperatureAlarmWorker alarm;
 
     private XYPlot dynamicPlot;
     private MyPlotUpdater plotUpdater;
     private List plotData = new ArrayList();
     private XYSeries temperatureSeries;
+
+    private double debugCounter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +56,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         temperatureButton = (Button) findViewById(R.id.temperatureButton);
 
+        //Zuweisung des TemperatureStore in den TemperatureAlarmWorker zur Überwachung
+        alarm = new TemperatureAlarmWorker(store, this);
+        store.addObserver(alarm.getMyValuesObserver());
+
+
         // TODO persistenten/gespeicherten Patienten aus bestehender File zum Programmstart auslesen
         patient = new Patient();
+
+        // TODO Entferne den Setoff für den debugCounter!
+        debugCounter = 7;
+
 
 
         //Plotter++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -62,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         dynamicPlot.getGraphWidget().setDomainValueFormat(new DecimalFormat("0"));
 
         //TODO Initialisiere plotData zum Programmstart aus bestehender File
+
 
         createAndAddNewSeries();
 
@@ -79,19 +95,32 @@ public class MainActivity extends AppCompatActivity {
 
         // uncomment this line to freeze the range boundaries:
         dynamicPlot.setRangeBoundaries(35, 43, BoundaryMode.FIXED);
+        dynamicPlot.getLegendWidget().setVisible(false);
+        dynamicPlot.getLegendWidget().setSize(new Size(0, SizeLayoutType.ABSOLUTE, 0, SizeLayoutType.ABSOLUTE));
+
+        dynamicPlot.getGraphWidget().setMargins(0,0,0,0);
+        dynamicPlot.getGraphWidget().setPadding(0,0,0,0);
 
         // create a dash effect for domain and range grid lines:
         DashPathEffect dashFx = new DashPathEffect(
                 new float[] {PixelUtils.dpToPix(3), PixelUtils.dpToPix(3)}, 0);
         dynamicPlot.getGraphWidget().getDomainGridLinePaint().setPathEffect(dashFx);
         dynamicPlot.getGraphWidget().getRangeGridLinePaint().setPathEffect(dashFx);
+        Paint paint = new Paint();
+        paint.setColor(Color.parseColor("#d6d7d7"));
+        dynamicPlot.getGraphWidget().setBackgroundPaint(paint);
+        dynamicPlot.setBackgroundPaint(paint);
+        dynamicPlot.getGraphWidget().setGridBackgroundPaint(paint);
     }
 
     public void updateTemperatureButton(View v) {
         Random random = new Random();
         DecimalFormat df = new DecimalFormat("#.##");
-        Double i = ((double) random.nextInt(6)) + random.nextDouble();
-        i += 35;
+        //TODO Activate Random Generator and delete example counter
+        //Double i = ((double) random.nextInt(6)) + random.nextDouble();
+        Double i = debugCounter + 35;
+        //debugCounter++;
+        debugCounter--;
         temperatureButton.setText(df.format(i).toString() + " C°");
         store.setPatient(patient);
         store.queue(i);
@@ -136,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
         formatter1.getLinePaint().setStrokeWidth(10);
         dynamicPlot.addSeries(temperatureSeries, formatter1);
     }
+
 
     //Plotter++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     // redraws a plot whenever an update is received:
