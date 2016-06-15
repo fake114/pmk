@@ -56,12 +56,15 @@ public class TemperatureAlarmWorker extends AsyncTask<Iterable<Double>, Void, It
             if (values.size() >= 6) {
                 if (checkHardPositiveTrend(values, values.size() - 5)) {
                     createAlert("ALARM!!! Es existiert ein positiver Trend!");
+                    Log.w("TemperatureAlarmWorker ","Positive Trend checked");
                     return;
+                } else if (checkHardNegativeTrend(values, values.size() - 5)) {
+                        Log.w("TemperatureAlarmWorker ","Checking for negative Trend");
+                        createAlert("ALARM!!! Es existiert ein negativer Trend!");
+                        Log.w("TemperatureAlarmWorker ","Negative Trend checked");
+                        return;
                 }
-                if (checkHardNegativeTrend(values, values.size() - 5)) {
-                    createAlert("ALARM!!! Es existiert ein negativer Trend!");
-                    return;
-                }
+
             }
 
             if (values.size() >= 2) {
@@ -80,14 +83,14 @@ public class TemperatureAlarmWorker extends AsyncTask<Iterable<Double>, Void, It
 
         private boolean checkHardPositiveTrend(List values, int pointer) {
             if(pointer == values.size()-1) {
-                if ( (Double) values.get(pointer) >= (Double) values.get(pointer-1) ) {
+                if ( (Double) values.get(pointer) > (Double) values.get(pointer-1) ) {
                     return true;
                 } else {
                     return false;
                 }
             }
             if(pointer < values.size()-1) {
-                if ( (Double) values.get(pointer) >= (Double) values.get(pointer-1) ) {
+                if ( (Double) values.get(pointer) > (Double) values.get(pointer-1) ) {
                     if (checkHardPositiveTrend(values, pointer+1) == false) {
                         return false;
                     }
@@ -99,15 +102,15 @@ public class TemperatureAlarmWorker extends AsyncTask<Iterable<Double>, Void, It
 
         private boolean checkHardNegativeTrend(List values, int pointer) {
             if(pointer == values.size()-1) {
-                if ( (Double) values.get(pointer) <= (Double) values.get(pointer-1) ) {
+                if ( (Double) values.get(pointer) < (Double) values.get(pointer-1) ) {
                     return true;
                 } else {
                     return false;
                 }
             }
             if(pointer < values.size()-1) {
-                if ( (Double) values.get(pointer) <= (Double) values.get(pointer-1) ) {
-                    if (checkHardPositiveTrend(values, pointer+1) == false) {
+                if ( (Double) values.get(pointer) < (Double) values.get(pointer-1) ) {
+                    if (checkHardNegativeTrend(values, pointer+1) == false) {
                         return false;
                     }
                     return true;
