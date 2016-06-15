@@ -1,6 +1,7 @@
 package com.example.black.pmk.gui;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
@@ -23,6 +24,7 @@ import com.androidplot.xy.XYPlot;
 import com.androidplot.xy.XYSeries;
 import com.androidplot.xy.XYStepMode;
 import com.example.black.pmk.data.Patient;
+import com.example.black.pmk.data.ProgressStore;
 import com.example.black.pmk.data.TemperatureStore;
 
 import java.text.DecimalFormat;
@@ -32,15 +34,16 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Random;
 import  com.example.black.pmk.R;
-import com.example.black.pmk.threading.BluetoothModule;
 import com.example.black.pmk.threading.TemperatureAlarmWorker;
+import com.google.gson.Gson;
 
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 
 public class MainActivity extends AppCompatActivity {
 
     private Button temperatureButton, namensButton;
-    private final TemperatureStore store = new TemperatureStore(3);
+    private  TemperatureStore store = new TemperatureStore(3);
+
     private boolean commit = false;
     private Patient patient;
     private TemperatureAlarmWorker alarm;
@@ -49,7 +52,9 @@ public class MainActivity extends AppCompatActivity {
     private MyPlotUpdater plotUpdater;
     private List plotData = new ArrayList();
     private XYSeries temperatureSeries;
-    private BluetoothModule bluetoothModule;
+
+    SharedPreferences  mPrefs = getPreferences(MODE_PRIVATE);
+
 
     private double debugCounter = 0;
 
@@ -69,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
 
         // TODO Entferne den Setoff für den debugCounter!
         debugCounter = 7;
-        bluetoothModule = new BluetoothModule(store);
 
 
 
@@ -205,4 +209,25 @@ public class MainActivity extends AppCompatActivity {
         super.onConfigurationChanged(newConfig);
         plotUpdater.update(null,null);
     }
+    @Override
+    protected void onPause(){
+        super.onPause();
+
+        ProgressStore progressStore = new ProgressStore(store.getProgressStore());
+        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(progressStore);
+        prefsEditor.putString("progressStore", json);
+        prefsEditor.apply();
+    }
+    @Override
+    protected void onStart(){
+        super.onStart();
+
+        Gson gson = new Gson();
+        String json = mPrefs.getString("progressStore", "");
+        ProgressStore progressStore = gson.fromJson(json, ProgressStore.class);
+        store.setProgressStore(progressStore.getStore());
+    }
+
 }

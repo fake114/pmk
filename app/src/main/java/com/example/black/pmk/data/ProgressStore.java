@@ -6,11 +6,11 @@ import java.util.List;
 /**
  * Created by Derek on 15.06.2016.
  */
-public class ProgressStore implements Serializable{
+public class ProgressStore implements Serializable {
 
     private List<Double> store;
 
-    public ProgressStore (List store) {
+    public ProgressStore(List store) {
         setStore(store);
     }
 

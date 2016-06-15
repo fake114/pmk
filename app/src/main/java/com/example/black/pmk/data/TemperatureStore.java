@@ -91,6 +91,9 @@ public class TemperatureStore extends Observable {
         Log.w("progressStore.size()","Size = " + progressStore.size());
         this.notifyObservers();
     }
+    public void setProgressStore(List<Double> progressStore){
+        this.progressStore = progressStore;
+    }
 
     public List getProgressStore(){
         Log.w("TemperatureStore ","Returning progressStore... ");
