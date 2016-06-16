@@ -6,6 +6,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +26,7 @@ import com.androidplot.xy.XYSeries;
 import com.androidplot.xy.XYStepMode;
 import com.example.black.pmk.data.Patient;
 import com.example.black.pmk.data.ProgressStore;
+import com.example.black.pmk.data.TemperatureGenerator;
 import com.example.black.pmk.data.TemperatureStore;
 
 import java.text.DecimalFormat;
@@ -55,8 +57,12 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences  mPrefs;
 
+    private Handler handler;
+    private final TemperatureGenerator generator = new TemperatureGenerator();
 
     private double debugCounter = 0;
+
+    private boolean canceled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,21 +129,44 @@ public class MainActivity extends AppCompatActivity {
         dynamicPlot.getGraphWidget().setBackgroundPaint(paint);
         dynamicPlot.setBackgroundPaint(paint);
         dynamicPlot.getGraphWidget().setGridBackgroundPaint(paint);
+        initRandomValues();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        canceled = true;
+    }
+
+    private void initRandomValues(){
+        handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                updateTemperature(generator.generateValue());
+                if(!canceled) handler.postDelayed(this, 1000);
+            }
+        }, 1000);
     }
 
     public void updateTemperatureButton(View v) {
         Random random = new Random();
-        DecimalFormat df = new DecimalFormat("#.##");
+
         //TODO Activate Random Generator and delete example counter
         Double i = ((double) random.nextInt(6)) + random.nextDouble();
         i += 35;
         //Double i = debugCounter + 35;
         //debugCounter++;
         //debugCounter--;
-        temperatureButton.setText(df.format(i).toString() + " C°");
+        updateTemperature(i);
+    }
+
+    private void updateTemperature(double value){
+        DecimalFormat df = new DecimalFormat("#.##");
+        if(temperatureButton != null) temperatureButton.setText(df.format(value).toString() + " C°");
         store.setPatient(patient);
         //bluetoothModule.run();
-        store.queue(i);
+        store.queue(value);
     }
 
     public void startPatientProfileActivity(View v) {
@@ -225,6 +254,9 @@ public class MainActivity extends AppCompatActivity {
         Gson gson = new Gson();
         String json = gson.toJson(progressStore);
         prefsEditor.putString("progressStore", json);
+        if(patient != null){
+            prefsEditor.putString("patient", gson.toJson(patient));
+        }
        // prefsEditor.apply();
         prefsEditor.commit();
     }
@@ -240,6 +272,14 @@ public class MainActivity extends AppCompatActivity {
             ProgressStore progressStore = gson.fromJson(json, ProgressStore.class);
             store.setProgressStore(progressStore.getStore());
             plotUpdater.update(null,null);
+        }
+        json = null;
+        json = mPrefs.getString("patient", null);
+        if(json == null){
+            Log.e("RESTORE", "The patient could not be restored.");
+        }else{
+            patient = gson.fromJson(json, Patient.class);
+            store.setPatient(patient);
         }
 
     }
