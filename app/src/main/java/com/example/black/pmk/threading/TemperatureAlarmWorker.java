@@ -1,7 +1,11 @@
 package com.example.black.pmk.threading;
 
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.os.AsyncTask;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.example.black.pmk.data.TemperatureStore;
@@ -124,9 +128,17 @@ public class TemperatureAlarmWorker extends AsyncTask<Iterable<Double>, Void, It
         }
 
         private void createAlert(String dialog) {
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mainActivity);
+
+            NotificationManager notificationManager = (NotificationManager) mainActivity.getSystemService(Context.NOTIFICATION_SERVICE);
+            Notification.Builder builder = new Notification.Builder(mainActivity);
+            builder.setPriority(Notification.PRIORITY_MAX).setContentText(dialog).setVibrate(new long[]{0, 500}).setContentTitle("PMK").setSmallIcon(android.R.drawable.ic_media_pause);
+            notificationManager.notify(10, builder.build());
+
+            Log.d("NOT", "Notification sent");
+
+            /**AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mainActivity);
             alertDialogBuilder.setMessage(dialog);
-            alertDialogBuilder.show();
+            alertDialogBuilder.show();**/
         }
     }
 

@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private List plotData = new ArrayList();
     private XYSeries temperatureSeries;
 
-    SharedPreferences  mPrefs = getPreferences(MODE_PRIVATE);
+    private SharedPreferences  mPrefs;
 
 
     private double debugCounter = 0;
@@ -61,6 +61,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        mPrefs = getApplicationContext().getSharedPreferences("TMP_STORE", MODE_PRIVATE);
+
         setContentView(R.layout.activity_main);
         temperatureButton = (Button) findViewById(R.id.temperatureButton);
 
@@ -207,8 +211,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        plotUpdater.update(null,null);
+
     }
+
+
+
     @Override
     protected void onPause(){
         super.onPause();
@@ -218,16 +225,23 @@ public class MainActivity extends AppCompatActivity {
         Gson gson = new Gson();
         String json = gson.toJson(progressStore);
         prefsEditor.putString("progressStore", json);
-        prefsEditor.apply();
+       // prefsEditor.apply();
+        prefsEditor.commit();
     }
     @Override
     protected void onStart(){
         super.onStart();
 
         Gson gson = new Gson();
-        String json = mPrefs.getString("progressStore", "");
-        ProgressStore progressStore = gson.fromJson(json, ProgressStore.class);
-        store.setProgressStore(progressStore.getStore());
+        String json = mPrefs.getString("progressStore", null);
+        if(json == null){
+            Log.e("RESTORE", "The progress values could not be restored.");
+        }else{
+            ProgressStore progressStore = gson.fromJson(json, ProgressStore.class);
+            store.setProgressStore(progressStore.getStore());
+            plotUpdater.update(null,null);
+        }
+
     }
 
 }
