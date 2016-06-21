@@ -34,8 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Random;
-import  com.example.black.pmk.R;
+import com.example.black.pmk.R;
 import com.example.black.pmk.threading.TemperatureAlarmWorker;
 import com.google.gson.Gson;
 
@@ -58,33 +57,25 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences  mPrefs;
 
     private Handler handler;
+    private boolean isGeneratorWorking = false;
     private final TemperatureGenerator generator = new TemperatureGenerator();
 
-    private double debugCounter = 0;
-
     private boolean canceled = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
 
         mPrefs = getApplicationContext().getSharedPreferences("TMP_STORE", MODE_PRIVATE);
 
         setContentView(R.layout.activity_main);
         temperatureButton = (Button) findViewById(R.id.temperatureButton);
 
+
         //Zuweisung des TemperatureStore in den TemperatureAlarmWorker zur Überwachung
         alarm = new TemperatureAlarmWorker(store, this);
         store.addObserver(alarm.getMyValuesObserver());
-
-
-        // TODO persistenten/gespeicherten Patienten aus bestehender File zum Programmstart auslesen
-        patient = new Patient();
-
-        // TODO Entferne den Setoff für den debugCounter!
-        debugCounter = 7;
-
 
 
         //Plotter++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -93,9 +84,6 @@ public class MainActivity extends AppCompatActivity {
 
         // only display whole numbers in domain labels
         dynamicPlot.getGraphWidget().setDomainValueFormat(new DecimalFormat("0"));
-
-        //TODO Initialisiere plotData zum Programmstart aus bestehender File
-
 
         createAndAddNewSeries();
 
@@ -129,7 +117,8 @@ public class MainActivity extends AppCompatActivity {
         dynamicPlot.getGraphWidget().setBackgroundPaint(paint);
         dynamicPlot.setBackgroundPaint(paint);
         dynamicPlot.getGraphWidget().setGridBackgroundPaint(paint);
-        initRandomValues();
+
+        //initRandomValues();
     }
 
     @Override
@@ -149,23 +138,25 @@ public class MainActivity extends AppCompatActivity {
         }, 1000);
     }
 
-    public void updateTemperatureButton(View v) {
-        Random random = new Random();
+    private void stopRandomValues(){
+        handler.removeCallbacksAndMessages(null);
+    }
 
-        //TODO Activate Random Generator and delete example counter
-        Double i = ((double) random.nextInt(6)) + random.nextDouble();
-        i += 35;
-        //Double i = debugCounter + 35;
-        //debugCounter++;
-        //debugCounter--;
-        updateTemperature(i);
+    public void updateTemperatureButton(View v) {
+
+        if (isGeneratorWorking == false) {
+            initRandomValues();
+            isGeneratorWorking = true;
+        } else if (isGeneratorWorking == true) {
+            stopRandomValues();
+            isGeneratorWorking = false;
+        }
     }
 
     private void updateTemperature(double value){
         DecimalFormat df = new DecimalFormat("#.##");
         if(temperatureButton != null) temperatureButton.setText(df.format(value).toString() + " C°");
         store.setPatient(patient);
-        //bluetoothModule.run();
         store.queue(value);
     }
 
@@ -185,23 +176,28 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == 1) {
             if(resultCode == RESULT_OK){
                 patient = (Patient) data.getSerializableExtra("patient");
-                String gender;
-                if (patient.getGenderEnum() == AdministrativeGenderEnum.MALE){
-                    gender = "Herr";
-                } else if (patient.getGenderEnum() == AdministrativeGenderEnum.FEMALE){
-                    gender = "Frau";
-                } else {
-                    gender = "";
-                }
-                namensButton = (Button) findViewById(R.id.namensButton);
-                namensButton.setText(gender + " " + patient.getName());
             }
         }
     }
 
+    public void updateNameButton () {
+            String gender;
+            if (patient.getGenderEnum() == AdministrativeGenderEnum.MALE) {
+                gender = "Herr";
+            } else if (patient.getGenderEnum() == AdministrativeGenderEnum.FEMALE) {
+                gender = "Frau";
+            } else {
+                gender = "";
+            }
+            namensButton = (Button) findViewById(R.id.namensButton);
+            namensButton.setText(gender + " " + patient.getName());
+            storeProgressAndPatient();
+    }
+
+
+
     public void createAndAddNewSeries() {
         temperatureSeries = new SimpleXYSeries((List<Double>) plotData, SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, "Temperatur");
-
         LineAndPointFormatter formatter1 = new LineAndPointFormatter(
                 Color.rgb(0, 0, 0), null, null, null);
         formatter1.getLinePaint().setStrokeJoin(Paint.Join.ROUND);
@@ -209,12 +205,10 @@ public class MainActivity extends AppCompatActivity {
         dynamicPlot.addSeries(temperatureSeries, formatter1);
     }
 
-
     //Plotter++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     // redraws a plot whenever an update is received:
     private class MyPlotUpdater implements Observer {
         Plot plot;
-
         public MyPlotUpdater(Plot plot) {
             this.plot = plot;
         }
@@ -228,27 +222,18 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 plotData.addAll(progressStore);
             }
-            //TODO Remove Logs in MainActivity MyPlotUpdater
-            Log.w("MainActivity ","plotData = " + plotData);
             dynamicPlot.clear();
             createAndAddNewSeries();
             plot.redraw();
-            Log.w("MainActivity ","Update method called...");
         }
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-
     }
 
-
-
-    @Override
-    protected void onPause(){
-        super.onPause();
-
+    private void storeProgressAndPatient() {
         ProgressStore progressStore = new ProgressStore(store.getProgressStore());
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
         Gson gson = new Gson();
@@ -257,9 +242,17 @@ public class MainActivity extends AppCompatActivity {
         if(patient != null){
             prefsEditor.putString("patient", gson.toJson(patient));
         }
-       // prefsEditor.apply();
         prefsEditor.commit();
     }
+
+
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+        storeProgressAndPatient();
+    }
+
     @Override
     protected void onStart(){
         super.onStart();
@@ -280,8 +273,10 @@ public class MainActivity extends AppCompatActivity {
         }else{
             patient = gson.fromJson(json, Patient.class);
             store.setPatient(patient);
+            if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                updateNameButton();
+            }
         }
-
     }
 
 }

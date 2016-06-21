@@ -12,7 +12,6 @@ import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.resource.Bundle;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
-import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 import ca.uhn.fhir.model.dstu2.valueset.BundleTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.HTTPVerbEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ObservationStatusEnum;
@@ -50,19 +49,6 @@ public class FHIRModule {
         IGenericClient client = ctx.newRestfulGenericClient(serverBase);
     }
 
-    /**
-     * // Perform a search
-     * Bundle results = client
-     * .search()
-     * .forResource(Patient.class)
-     * .where(Patient.FAMILY.matches().value("duck"))
-     * .returnBundle(ca.uhn.fhir.model.dstu2.resource.Bundle.class)
-     * .execute();
-     * <p>
-     * System.out.println("Found " + results.getEntry().size() + " patients named 'duck'");
-     */
-
-//TODO Change IDs to random
     private Patient createPatient(com.example.black.pmk.data.Patient rawPatient) {
         // Create a patient object
         Patient patient = new Patient();

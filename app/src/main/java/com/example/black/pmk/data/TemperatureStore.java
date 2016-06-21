@@ -79,16 +79,12 @@ public class TemperatureStore extends Observable {
 
     private void storeProgress(double value) {
         store.add(value);
-        Log.w("TemperatureStore store","Stored Values = " + store.toString());
-        Log.w("progressStore.size()","Size = " + progressStore.size());
         if (progressStore.size() <= PROGRESS_STORE_LIMIT) {
             progressStore.add(value);
         } else {
             progressStore.remove(0);
             progressStore.add(value);
         }
-        Log.w("TemperatureStore ","Stored Values = " + progressStore.toString());
-        Log.w("progressStore.size()","Size = " + progressStore.size());
         this.notifyObservers();
     }
     public void setProgressStore(List<Double> progressStore){
@@ -96,7 +92,6 @@ public class TemperatureStore extends Observable {
     }
 
     public List getProgressStore(){
-        Log.w("TemperatureStore ","Returning progressStore... ");
         return progressStore;
     }
 

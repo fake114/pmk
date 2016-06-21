@@ -1,12 +1,9 @@
 package com.example.black.pmk.threading;
 
-import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.example.black.pmk.data.TemperatureStore;
 import com.example.black.pmk.gui.MainActivity;
@@ -38,8 +35,6 @@ public class TemperatureAlarmWorker extends AsyncTask<Iterable<Double>, Void, It
     @Override
     protected Iterable<Double> doInBackground(Iterable<Double>... params) {
         if(params.length != 1 ) throw new  IllegalArgumentException("Invalid amount of parameters.");
-        //TODO Implement Alarm Algorithm
-
         return  params[0];
     }
 
@@ -59,13 +54,10 @@ public class TemperatureAlarmWorker extends AsyncTask<Iterable<Double>, Void, It
 
             if (values.size() >= 6) {
                 if (checkHardPositiveTrend(values, values.size() - 5)) {
-                    createAlert("ALARM!!! Es existiert ein positiver Trend!");
-                    Log.w("TemperatureAlarmWorker ","Positive Trend checked");
+                    createAlert("ALARM! Positiver Trend!");
                     return;
                 } else if (checkHardNegativeTrend(values, values.size() - 5)) {
-                        Log.w("TemperatureAlarmWorker ","Checking for negative Trend");
-                        createAlert("ALARM!!! Es existiert ein negativer Trend!");
-                        Log.w("TemperatureAlarmWorker ","Negative Trend checked");
+                        createAlert("ALARM! Negativer Trend!");
                         return;
                 }
 
@@ -74,15 +66,14 @@ public class TemperatureAlarmWorker extends AsyncTask<Iterable<Double>, Void, It
             if (values.size() >= 2) {
                 //Check, if last two values are above normal (37 C°)
                 if ((((Double) values.get(values.size() - 1) <= 36) && ((Double) values.get(values.size() - 2) <= 36))) {
-                    createAlert("ALARM!!! Die aktuellsten Werte haben die untere Grenze überschritten!");
+                    createAlert("ALARM! Untere Grenze überschritten!");
                     return;
                 }
                 if ((((Double) values.get(values.size() - 1) >= 38) && ((Double) values.get(values.size() - 2) >= 38))) {
-                    createAlert("ALARM!!! Die aktuellsten Werte haben die obere Grenze überschritten!");
+                    createAlert("ALARM! Obere Grenze überschritten!");
                     return;
                 }
             }
-            Log.w("TemperatureAlarmWorker ","Update method called...");
         }
 
         private boolean checkHardPositiveTrend(List values, int pointer) {
@@ -128,17 +119,10 @@ public class TemperatureAlarmWorker extends AsyncTask<Iterable<Double>, Void, It
         }
 
         private void createAlert(String dialog) {
-
             NotificationManager notificationManager = (NotificationManager) mainActivity.getSystemService(Context.NOTIFICATION_SERVICE);
             Notification.Builder builder = new Notification.Builder(mainActivity);
             builder.setPriority(Notification.PRIORITY_MAX).setContentText(dialog).setVibrate(new long[]{0, 500}).setContentTitle("PMK").setSmallIcon(android.R.drawable.ic_media_pause);
             notificationManager.notify(10, builder.build());
-
-            Log.d("NOT", "Notification sent");
-
-            /**AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mainActivity);
-            alertDialogBuilder.setMessage(dialog);
-            alertDialogBuilder.show();**/
         }
     }
 
