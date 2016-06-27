@@ -18,30 +18,11 @@
         android:layout_alignParentStart="true"
         android:id="@+id/linearLayout">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Guten Tag!"
-            android:id="@+id/gutenTag"
-            android:textSize="25sp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"
-            android:padding="15dp"
-            android:visibility="visible" />
-
-        <TextView
-            android:layout_width="30dp"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:id="@+id/textView10"
-            android:padding="15dp" />
-
         <Button
             style="?android:attr/buttonStyleSmall"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Herr Esel"
+            android:text="Unbekannt"
             android:id="@+id/namensButton"
             android:textSize="15sp"
             android:layout_alignParentTop="true"

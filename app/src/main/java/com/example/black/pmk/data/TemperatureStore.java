@@ -1,7 +1,11 @@
 package com.example.black.pmk.data;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
+import com.example.black.pmk.gui.MainActivity;
 import com.example.black.pmk.threading.TemperatureCommitListener;
 import com.example.black.pmk.threading.TemperatureCommitWorker;
 
@@ -15,6 +19,7 @@ import java.util.Observable;
 public class TemperatureStore extends Observable {
 
     private final List<Double> store = new ArrayList<>();
+    private MainActivity mainActivity;
     private List<Double> progressStore = new ArrayList<>();
     private final int PROGRESS_STORE_LIMIT = 1000;
     private final Object lockObject = new Object();
@@ -23,8 +28,9 @@ public class TemperatureStore extends Observable {
 
     private final int blockSize;
 
-    public  TemperatureStore(int blockSize){
+    public  TemperatureStore(int blockSize, MainActivity mainActivity){
         this.blockSize = blockSize;
+        this.mainActivity = mainActivity;
     }
 
     public void queue(double value){
@@ -65,7 +71,17 @@ public class TemperatureStore extends Observable {
     }
 
     private void checkState(){
-        if(store.size() >= blockSize && !isCommitting)
+        boolean connected = false;
+        ConnectivityManager connectivityManager = (ConnectivityManager) mainActivity.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+            //we are connected to a network
+            connected = true;
+        }
+        else
+            connected = false;
+
+        if(store.size() >= blockSize && !isCommitting && connected == true)
             startCommit();
     }
 

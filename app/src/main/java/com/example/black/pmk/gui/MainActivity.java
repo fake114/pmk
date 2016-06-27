@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+
 import com.example.black.pmk.R;
 import com.example.black.pmk.threading.TemperatureAlarmWorker;
 import com.google.gson.Gson;
@@ -43,7 +44,7 @@ import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 public class MainActivity extends AppCompatActivity {
 
     private Button temperatureButton, namensButton;
-    private  TemperatureStore store = new TemperatureStore(3);
+    private TemperatureStore store;
 
     private boolean commit = false;
     private Patient patient;
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private List plotData = new ArrayList();
     private XYSeries temperatureSeries;
 
-    private SharedPreferences  mPrefs;
+    private SharedPreferences mPrefs;
 
     private Handler handler;
     private boolean isGeneratorWorking = false;
@@ -66,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        store = new TemperatureStore(3, this);
         mPrefs = getApplicationContext().getSharedPreferences("TMP_STORE", MODE_PRIVATE);
 
         setContentView(R.layout.activity_main);
@@ -104,12 +105,12 @@ public class MainActivity extends AppCompatActivity {
         dynamicPlot.getLegendWidget().setVisible(false);
         dynamicPlot.getLegendWidget().setSize(new Size(0, SizeLayoutType.ABSOLUTE, 0, SizeLayoutType.ABSOLUTE));
 
-        dynamicPlot.getGraphWidget().setMargins(0,0,0,0);
-        dynamicPlot.getGraphWidget().setPadding(0,0,0,0);
+        dynamicPlot.getGraphWidget().setMargins(0, 0, 0, 0);
+        dynamicPlot.getGraphWidget().setPadding(0, 0, 0, 0);
 
         // create a dash effect for domain and range grid lines:
         DashPathEffect dashFx = new DashPathEffect(
-                new float[] {PixelUtils.dpToPix(3), PixelUtils.dpToPix(3)}, 0);
+                new float[]{PixelUtils.dpToPix(3), PixelUtils.dpToPix(3)}, 0);
         dynamicPlot.getGraphWidget().getDomainGridLinePaint().setPathEffect(dashFx);
         dynamicPlot.getGraphWidget().getRangeGridLinePaint().setPathEffect(dashFx);
         Paint paint = new Paint();
@@ -127,18 +128,18 @@ public class MainActivity extends AppCompatActivity {
         canceled = true;
     }
 
-    private void initRandomValues(){
+    private void initRandomValues() {
         handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 updateTemperature(generator.generateValue());
-                if(!canceled) handler.postDelayed(this, 1000);
+                if (!canceled) handler.postDelayed(this, 1000);
             }
         }, 1000);
     }
 
-    private void stopRandomValues(){
+    private void stopRandomValues() {
         handler.removeCallbacksAndMessages(null);
     }
 
@@ -153,16 +154,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void updateTemperature(double value){
+    private void updateTemperature(double value) {
         DecimalFormat df = new DecimalFormat("#.##");
-        if(temperatureButton != null) temperatureButton.setText(df.format(value).toString() + " C°");
+        if (temperatureButton != null)
+            temperatureButton.setText(df.format(value).toString() + " C°");
         store.setPatient(patient);
         store.queue(value);
     }
 
     public void startPatientProfileActivity(View v) {
         Toast.makeText(MainActivity.this, "Öffne Patienten-Editor", Toast.LENGTH_LONG).show();
-        Intent intent = new Intent(MainActivity.this , PatientActivity.class);
+        Intent intent = new Intent(MainActivity.this, PatientActivity.class);
         intent.putExtra("patient", patient);
         startActivityForResult(intent, 1);
     }
@@ -174,14 +176,16 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
-            if(resultCode == RESULT_OK){
+            if (resultCode == RESULT_OK) {
                 patient = (Patient) data.getSerializableExtra("patient");
+                updateNameButton();
             }
         }
     }
 
-    public void updateNameButton () {
-            String gender;
+    public void updateNameButton() {
+        String gender;
+        /*
             if (patient.getGenderEnum() == AdministrativeGenderEnum.MALE) {
                 gender = "Herr";
             } else if (patient.getGenderEnum() == AdministrativeGenderEnum.FEMALE) {
@@ -189,11 +193,12 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 gender = "";
             }
-            namensButton = (Button) findViewById(R.id.namensButton);
-            namensButton.setText(gender + " " + patient.getName());
-            storeProgressAndPatient();
+            */
+        namensButton = (Button) findViewById(R.id.namensButton);
+        //namensButton.setText(gender + " " + patient.getName());
+        namensButton.setText(patient.getGivenName() + " " + patient.getName());
+        storeProgressAndPatient();
     }
-
 
 
     public void createAndAddNewSeries() {
@@ -209,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
     // redraws a plot whenever an update is received:
     private class MyPlotUpdater implements Observer {
         Plot plot;
+
         public MyPlotUpdater(Plot plot) {
             this.plot = plot;
         }
@@ -218,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
             plotData.clear();
             List progressStore = store.getProgressStore();
             if (progressStore.size() >= 61) {
-                plotData.addAll(progressStore.subList(progressStore.size()-61, progressStore.size()-0));
+                plotData.addAll(progressStore.subList(progressStore.size() - 61, progressStore.size() - 0));
             } else {
                 plotData.addAll(progressStore);
             }
@@ -239,38 +245,37 @@ public class MainActivity extends AppCompatActivity {
         Gson gson = new Gson();
         String json = gson.toJson(progressStore);
         prefsEditor.putString("progressStore", json);
-        if(patient != null){
+        if (patient != null) {
             prefsEditor.putString("patient", gson.toJson(patient));
         }
         prefsEditor.commit();
     }
 
 
-
     @Override
-    protected void onPause(){
+    protected void onPause() {
         super.onPause();
         storeProgressAndPatient();
     }
 
     @Override
-    protected void onStart(){
+    protected void onStart() {
         super.onStart();
 
         Gson gson = new Gson();
         String json = mPrefs.getString("progressStore", null);
-        if(json == null){
+        if (json == null) {
             Log.e("RESTORE", "The progress values could not be restored.");
-        }else{
+        } else {
             ProgressStore progressStore = gson.fromJson(json, ProgressStore.class);
             store.setProgressStore(progressStore.getStore());
-            plotUpdater.update(null,null);
+            plotUpdater.update(null, null);
         }
         json = null;
         json = mPrefs.getString("patient", null);
-        if(json == null){
+        if (json == null) {
             Log.e("RESTORE", "The patient could not be restored.");
-        }else{
+        } else {
             patient = gson.fromJson(json, Patient.class);
             store.setPatient(patient);
             if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
