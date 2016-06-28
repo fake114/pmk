@@ -5,9 +5,6 @@ import android.os.AsyncTask;
 import com.example.black.pmk.FHIRModule;
 import com.example.black.pmk.data.Patient;
 
-/**
- * Created by Black on 5/9/2016.
- */
 public class TemperatureCommitWorker extends AsyncTask<Iterable<Double>, Void, Iterable<Double>> {
 
     private final TemperatureCommitListener listener;

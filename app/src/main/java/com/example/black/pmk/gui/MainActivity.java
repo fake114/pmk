@@ -39,7 +39,6 @@ import com.example.black.pmk.R;
 import com.example.black.pmk.threading.TemperatureAlarmWorker;
 import com.google.gson.Gson;
 
-import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 
 public class MainActivity extends AppCompatActivity {
 

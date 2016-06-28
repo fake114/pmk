@@ -2,9 +2,6 @@ package com.example.black.pmk.data;
 
 import java.util.Random;
 
-/**
- * Created by singer on 16.06.16.
- */
 public class TemperatureGenerator {
 
     private final Random random = new Random();

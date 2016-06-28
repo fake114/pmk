@@ -18,9 +18,6 @@ import ca.uhn.fhir.model.dstu2.valueset.ObservationStatusEnum;
 import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.rest.client.IGenericClient;
 
-/**
- * Created by Black on 4/15/2016.
- */
 public class FHIRModule {
 
     private final Iterable<Double> temperatures;

@@ -12,9 +12,6 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-/**
- * Created by Derek on 14.06.2016.
- */
 public class TemperatureAlarmWorker extends AsyncTask<Iterable<Double>, Void, Iterable<Double>> {
 
     private TemperatureStore store;
@@ -111,10 +108,6 @@ public class TemperatureAlarmWorker extends AsyncTask<Iterable<Double>, Void, It
                     return true;
                 }
             }
-            return false;
-        }
-
-        private boolean checkSoftPositiveTrend(){
             return false;
         }
 

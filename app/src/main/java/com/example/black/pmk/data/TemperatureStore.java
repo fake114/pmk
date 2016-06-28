@@ -13,9 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 
-/**
- * Created by Black on 5/9/2016.
- */
 public class TemperatureStore extends Observable {
 
     private final List<Double> store = new ArrayList<>();

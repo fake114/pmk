@@ -5,9 +5,6 @@ import java.util.Date;
 
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 
-/**
- * Created by Derek on 13.05.2016.
- */
 public class Patient implements Serializable {
 
     private String givenName, name;
